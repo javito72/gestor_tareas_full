@@ -1,0 +1,32 @@
+//- src/views/usuarios/crear.pug
+extends ../layout
+
+
+block content
+  h1= titulo
+  
+  form(action='/usuarios/crear', method='POST')
+    label(for='nombre') Nombre:
+    input(type='text', name='nombre', id='nombre', required)
+    
+    label(for='email') Email:
+    input(type='email', name='email', id='email', required)
+    
+    label(for='contraseña') Contraseña:
+    input(type='password', name='contraseña', id='contraseña', required)
+    
+    label(for='rol') Rol:
+    select(name='rol', id='rol')
+      option(value='') Sin Asignar
+      each rol in roles
+          option(value=rol._id)= rol.nombre
+    
+    label(for='area') area:
+    select(name='area', id='area', required)
+      option(value='') Sin Asignar
+      each area in areas
+          option(value=area._id)= area.nombre
+      
+    
+    button(type='submit') Crear Usuario
+    a.btn.btn-primary.volver(href='/usuarios') Volver a Usuarios

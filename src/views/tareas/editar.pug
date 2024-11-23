@@ -1,0 +1,79 @@
+extends ../layout
+
+block content
+  div(class='header')
+    h1= titulo
+    h2= user.nombre
+  form(action=`/tareas/editar/${tarea._id}`, method='POST')
+    label(for='titulo') Título:
+    input(type='text', name='titulo', id='titulo', value=tarea.titulo, required)
+
+    label(for='area') Área:
+    select(name='area', id='area', required)
+      option(value='') Sin área
+      each area in areas
+        option(
+          value=area._id
+          selected=(tarea.area && tarea.area._id.toString() === area._id.toString())
+        )= area.nombre
+
+    label(for='descripcion') Descripción:
+    textarea(name='descripcion', id='descripcion')= tarea.descripcion
+
+    //- label(for='estado') Estado:
+    //- select(name='estado', id='estado')
+    //-   option(value='') Sin Estado
+    //-   each estado in estados
+    //-     option(
+    //-       value=estado._id
+    //-       selected=(tarea.estado && tarea.estado._id.toString() === estado._id.toString())
+    //-     )= estado.nombre
+
+    //- label(for='prioridad') Prioridad:
+    //- select(name='prioridad', id='prioridad')
+    //-   option(value='') Sin Prioridad
+    //-   each prioridad in prioridades
+    //-     option(
+    //-       value=prioridad._id
+    //-       selected=(tarea.prioridad && tarea.prioridad._id.toString() === prioridad._id.toString())
+    //-     )= prioridad.nombre
+
+    label(for='usuarioAsignado') Usuario Asignado:
+    select(name='usuarioAsignado', id='usuarioAsignado')
+      option(value='') Sin Asignar
+      each usuario in usuarios
+        option(
+          value=usuario._id
+          selected=(tarea.usuarioAsignado && tarea.usuarioAsignado._id.toString() === usuario._id.toString())
+        )= usuario.nombre
+
+    h3 Roles con Permiso
+    div.roles-permitidos
+      label(for='roles_con_permiso.modificar').inline Permisos para modificar tarea  
+      p.inline.ctrlText usa 'ctrl' para sumar selecciones
+      select(name='roles_con_permiso.modificar[]', id='roles_con_permiso.modificar', multiple)
+        option(value='') Sin Asignar
+        each rol in roles
+          //- option(value=rol._id)= rol.nombre
+          option(value=rol._id, selected=tarea.roles_con_permiso.modificar.includes(rol._id.toString()))= rol.nombre
+
+    div
+      label(for='roles_con_permiso.avance').inline Permisos para registrar avance   
+      p.inline.ctrlText usa 'ctrl' para sumar selecciones
+      select(name='roles_con_permiso.avance[]', id='roles_con_permiso.avance', multiple)
+        option(value='') Sin Asignar
+        each usuario in usuarios
+          //- option(value=usuario._id)= usuario.nombre
+          option(value=usuario._id, selected=tarea.roles_con_permiso.avance.includes(usuario._id.toString()))= usuario.nombre
+
+    label(for='fechaVencimiento').inline Fecha de Vencimiento: 
+    p.inline= formatDate(tarea.fechaVencimiento)
+    //- input(
+    //-   type='date'
+    //-   name='fechaVencimiento'
+    //-   id='fechaVencimiento'
+    //-   value=tarea.fechaVencimiento ? tarea.fechaVencimiento.toISOString().split('T')[0] : ''
+    //- )
+    div.inblock.cnt-btn-footer
+      button(type='submit') Actualizar Tarea
+      a.btn.btn-primary.volver(href='/tareas') Volver a Tareas

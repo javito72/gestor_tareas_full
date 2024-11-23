@@ -1,0 +1,81 @@
+//- src/views/tareas/listar.pug
+extends ../layout
+
+block content
+  div(class='header')
+    h1= titulo
+    h2= user.nombre
+  a.btn.btn-primary(href='/tareas/crear') Crear Nueva Tarea
+  table
+    thead
+      tr
+        th(class="tarea-tbl" onclick='location.href="/tareas/ordenadas?sort=titulo"') Título
+        th(class="tarea-tbl" onclick='location.href="/tareas/ordenadas?sort=area"') Área
+        th(class="tarea-tbl" onclick='location.href="/tareas/ordenadas?sort=estado"') Estado
+        th(class="tarea-tbl" onclick='location.href="/tareas/ordenadas?sort=prioridad"') Prioridad
+        th(class="tarea-tbl" onclick='location.href="/tareas/ordenadas?sort=usuarioAsignado"') Usuario Asignado
+        th(class="tarea-tbl" onclick='location.href="/tareas/ordenadas?sort=fechaVencimiento"') Fecha de Vencimiento
+        th Acciones
+    tbody
+      each tarea in tareas
+        tr(
+          complete=(tarea.estado.nombre == 'Completada' ? "true" : "false")
+          inprogress=(tarea.estado.nombre == 'En Progreso' ? "true" : "false")
+          init=(tarea.estado.nombre == 'Inicializada' ? "true" : "false")
+          pending=(tarea.estado.nombre == 'Pendiente' ? "true" : "false")
+          pause=(tarea.estado.nombre == 'Pausada' ? "true" : "false")
+        )
+          td= tarea.titulo
+          td= tarea.area ? tarea.area.nombre : 'Sin Area'
+          td= tarea.estado ? tarea.estado.nombre : 'Sin Estado'
+          td= tarea.prioridad ? tarea.prioridad.nombre : 'Sin Prioridad'
+          td= tarea.usuarioAsignado ? tarea.usuarioAsignado.nombre : 'Sin Asignar'
+          td= tarea.fechaVencimiento ? tarea.fechaVencimiento.toISOString().split('T')[0] : 'Sin Fecha'
+          td
+            if user.rolName === 'Administrador'
+              a.btn.btn-primary.btn-sm(href=`/tareas/editar/${tarea._id}`) Detalle
+              a.btn.btn-danger.btn-sm(href=`/tareas/eliminar/${tarea._id}`) Eliminar
+            else
+              a.btn.btn-primary.btn-sm(
+                href=`/tareas/avance/${tarea._id}` 
+                aria-disabled=(!tarea.roles_con_permiso.avance.map(id => id.toString()).includes(String(userID)) ? 'true' : 'false')) Avance
+              a.btn.btn-primary.btn-sm(
+                href=`/tareas/editar/${tarea._id}` 
+                aria-disabled=(!tarea.roles_con_permiso.modificar.map(id => id.toString()).includes(String(rolID)) ? 'true' : 'false')) Detalle
+                
+  // Mostrar mensajes flash si existen
+  if error_msg
+    p(style="color: red")= error_msg
+  if success_msg
+    p(style="color: green")= success_msg
+
+  // Formulario de filtros
+  form(action='/tareas', method='GET', class='filters-form')
+    div
+      label(for='estado') Estado:
+      select(name='estado', id='estado')
+        option(value='') Todos
+        each est of estados
+          option(value=est._id, selected=(filtros.estado == est._id.toString()))= est.nombre
+
+    div
+      label(for='prioridad') Prioridad:
+      select(name='prioridad', id='prioridad')
+        option(value='') Todos
+        each pri in prioridades
+          option(value=pri._id, selected=(filtros.prioridad == pri._id.toString()))= pri.nombre
+
+    div
+      label(for='fecha') Fecha de Vencimiento:
+      input(
+        type='date'
+        name='fecha'
+        id='fecha'
+        value=filtros.fecha || ''
+      )
+
+    div
+      button.btn.btn-primary(type='submit') Filtrar
+      a.btn.btn-secondary(href='/tareas') Limpiar Filtros
+
+  
